@@ -1,0 +1,237 @@
+# defaults:
+#   -override hydra/hydra_logging: disabled
+#   -override hydra/job_logging: disabled
+
+# hydra:
+#   output_subdir: null
+#   run: 
+#     dir: .
+
+trial: 0  # id for recording multiple runs
+modalities: T+A+V
+do_eval: False
+device_id: [0]
+training_dataset: meld  # or iemocap
+test_res_per_ep: False
+
+cwd: ${hydra:runtime.cwd}
+seed: 1111 # 42  # 1111
+data:
+#  mean: [0.5, 0.5, 0.5]
+#  std: [0.5, 0.5, 0.5]
+  num_labels: 7
+  audio_feature_dim: 768
+  vision_feature_dim: 512  # TODO
+  audio_utt_max_len_pkl: 132
+  audio_utt_max_len: 168   # 1249: ivalue-len:400000; 168: ivalue-len:53861; 624: ivalue-len: 200000
+  context_max_len: 256  
+  context_pad_value: 1    
+  text_utt_max_len: 38     # max len in one utterance
+  vision_utt_max_len: 174
+  swin_image_size: 224
+  transform:
+    swin_image_size: 224
+    # mean:  [0.3756, 0.2245, 0.1943]  # facSeq 160 data stat
+    # std: [0.1665, 0.1197, 0.1167]
+    mean: [ 0.5, 0.5, 0.5 ]
+    std: [ 0.5, 0.5, 0.5 ]
+    color_jitter:
+      brightness: 0.5
+      contrast: 0.5
+      saturation: 0.5
+      hue: 0.5
+    resize:
+      target_size: ${data.swin_image_size}
+
+dataset:
+  anno_csv_path: ${cwd}/../common/data/meld
+  data_load_path: ${dataset.anno_csv_path}/preprocessed_data
+  text_path: ${dataset.data_load_path}/text
+  meld:
+    anno_csv_path: ${cwd}/../common/data/meld
+    video_dir: ${dataset.anno_csv_path}/raw/MELD.Raw
+    emotion_vocab_path: ${dataset.anno_csv_path}/meld_vocab.pkl
+    audio_ivalues_path: ${dataset.data_load_path}/audio/penny_meld_audio_ivalues.pkl   # values from audio processor
+    audio_ivalues_path_wav2vec: ${dataset.data_load_path}/audio/penny_meld_audio_ivalues_wav2vec.pkl
+  iemocap:
+    anno_csv_path: ${cwd}/../common/data/iemocap
+    video_dir: ''
+    emotion_vocab_path: ${dataset.iemocap.anno_csv_path}/iemocap_vocab.pkl
+    audio_ivalues_path: ${dataset.data_load_path}/audio/penny_iemocap_audio_ivalues.pkl
+  
+  affwild2:
+    data_root: ${cwd}/../common/data/aff-wild2
+    data_folder: ${dataset.affwild2.data_root}/openface_masked_cropped # /cropped_all/cropped_aligned
+    anno_folder: ${dataset.affwild2.data_root}/5th_ABAW_Annotations/EXPR_Classification_Challenge
+    img_list_dir: ${dataset.affwild2.data_root}/preprocessed_data
+   
+model:
+  swin:
+    backbone_type: SwinTransformer
+    backbone_conf: ${cwd}/modules/SwinTransformer/swin_conf.yaml
+    # pretrained_backbone_pth: ${cwd}/pretrained_model
+    tau: 1                  # temperature parameter
+    classifier_head:
+      linear_in_dim: 512
+      linear_out_dim: 64
+      num_labels: ${data.num_labels}
+    pretrained_backbone_path: ${cwd}/pretrained_model/Swin_tiny_Ms-Celeb-1M.pt
+
+  plm:
+    use_text_teacher: False
+    use_text_teacher_for_audio: False
+    use_frozen_teacher: False
+    pretrained_path: 'princeton-nlp/sup-simcse-roberta-large'
+    pad_value: 1
+    mask_value: 2
+  
+  vision_encoder:
+    model_name: 'inceptionresnetv1' # or resnet50
+    use_webface_pretrain: False # True
+    use_imgnet_pretrain: False  # for resnet50
+    pretrained_path: '' # '/home/penny/pycharmprojects/common/models/pretrained_model/ckpt_epoch_134.pth'
+  
+  audio_encoder:
+    model_name: 'data2vec'  # or wave2vec
+    pretrained_path: 'facebook/data2vec-audio-base-960h'   #default, used in TelME
+    pretrained_path_wav2vec: 'facebook/wav2vec2-base-960h'
+    # pretrained_path: ['facebook/wav2vec2-large-960h', 'facebook/data2vec-audio-base-960h'] # 'facebook/data2vec-audio-base-960h' (TelME)
+  
+  multimodal_fusion:
+    hidden_size: 768
+    beta_shift: 1e-1
+    dropout_prob: 0.2
+    num_head: 3
+
+
+  transformers:
+    openface_feat_attn:
+      num_transformer_layers: 2
+      num_attn_heads: 12
+      intermediate_size: 128
+      hidden_activation: gelu
+      hidden_dropout_prob: 0.1
+      attn_probs_dropout_prob: 0.1
+      layer_norm_eps: 1e-12
+      initializer_range: 0.02
+
+    hidden_size: 768
+    self_attn_transformer:
+      num_transformer_layers:
+        audio: 5
+        vision: 2
+#      hidden_size: 768
+      num_attn_heads: 12
+      intermediate_size: 3072
+      hidden_activation: gelu
+      hidden_dropout_prob: 0.1
+      attn_probs_dropout_prob: 0.1
+      layer_norm_eps: 1e-12
+      initializer_range: 0.02
+
+    cross_modal_transformer:
+      default:
+        num_transformer_layers: 2
+        num_attn_heads: 12
+        attn_dropout: 0.1
+      text_audio:
+        num_transformer_layers: 2
+        num_attn_heads: 12
+        attn_dropout: 0.1
+      text_audio_vision:
+        num_transformer_layers: 2
+        num_attn_heads: 12
+        attn_dropout: 0.1
+
+train:
+  tv_model_name: kd_teacher_tv.pth
+  kd:
+    tstudent_check_clarity: False   # check teacher clarity
+    alpha: 0.01
+    beta: 0.5
+    fusion_frozen_s: True  # frozen students while training fusion module
+  kd_student: 1    # 1 for vision, 0 for audio
+  print_error_idx: False
+  use_focal_loss: False  # whether use focal loss or not
+  use_weighted_ce: False 
+  label_guidance: False  # concat with true labels to test
+  cosine: True  # use cosine decay scheduler
+  df_lr: False   # use different lr for different modules
+  save_model: False
+  apply_cross_attn_mask: False
+  tfeat_mask_min: 0.3
+  tfeat_mask_by_teacher: False   # mask text token by confidence of teacher model
+  vfeat_orth_loss_ratio: 0.01
+  vfeat_group_orth: False  # orth loss between groups
+  # vfeat_use_text_feat: False
+  vfeat_teacher_confidence_min: 0.6
+  vfeat_orthogonal: False
+  vfeat_neutral_norm: False 
+  vfeat_apply_au: False  # apply action unit 
+  vfeat_append_au: False  # append action unit value 
+  vfeat_one_frame: False  # select one frame (in combination with kf 4/44) 1.max_sim, 2. sequential, 3.random
+  afeat_from_pkl: True       # if true, load preexracted audio feature from pkl
+  afeat_penny: False   # use features extracted by penny
+  vfeat_filter_masked_openface: False  # mainly for openface masked images
+  vfeat_penny: False     # use features extracted by penny
+  vfeat_zeros: False   # zero out all facial expressions
+  vfeat_keyframes: 0   # 1.apply keyframes before vision transformer (wrt text embeddings), 11. scores<0.5, 2. apply after (wrt text embeddings), 22. scores<0.5, 3. wrt prototype vectors.
+ # 4. vision--audio before self-attn (44. zero out vision embeddings) 5. vision--audio after self attn (55. zero out vision embedding)
+  vfeat_random_group: False
+  vfeat_larger_group: False
+  vfeat_kf_threshold: 0.5 
+  vfeat_filter2: 0 # filter the image frames to the configured number
+  vfeat_supv_detach: True  # detach other expert embedding 
+  vfeat_detach_for_score: False
+  vfeat_truncate: 0 # 100
+  vfeat_downsample_to: 0  # downsampling to {} frames
+  vfeat_truncate_r: False   # truncate from end
+  vfeat_from_pkl: True      # if True, load preextracted vision feature from pkl
+  early_stop_check_epochs: -1   # if best val wf not updated for {} epochs, then stop training
+  max_train_steps: -1     # max training steps per epoch
+  multimodal_fusion: 0   # 1 for ASF, 2 for MAG, 0 for CMA
+  weight_init: 1  # apply customized weight init
+  num_workers: 16
+  pin_memory: False
+  additional_training_pair: False
+  resnet_trainable: False
+  audio_encoder_trainable: False
+  audio_mask: False   # whether to apply audio_mask 
+  spcl_loss:
+    temperature: 0.08
+    pool_size: 512
+    support_set_size: 64
+  loss_fn: ''
+  num_epochs: 75
+  batch_size: 32
+  # aux_batch_size: 128  #128 (roberta-base)  # devices_ids = [1, 2]
+  ptmlr: 7e-6
+  other_lr: 1e-3
+  lr: 1e-7 # 7e-6
+  lr_decay_epochs: [5, 9]
+  # aux_lr: 5e-5
+  weight_decay: 0.05
+  warm_up: 0.02 # 0.1
+  accumulation_steps: 1
+  # aux_accumulation_steps: 1
+  # emo_importance_ths: 0.2 # filter out the emotion-blurred frames
+  gradient_clip_value: 10   # 5: ref to SPCL , 10: ref to TelME , 0.8: ref to FacialMMT
+  log_interval: 100
+  # aux_log_interval: 100
+  save_model_path: ${cwd}/../common/models/pretrained_model/kd_teacher_tv_neutral_norm1.pth
+
+eval:
+  model_path:
+    root: ${cwd}/pretrained_model/FacialMMT-RoBERTa
+  #  swin: ${cwd}/saved_model/best_swin_04-21-00-24-10.pt
+    multimodal: ${cwd}/saved_model/multimodal_model_T+A+V_05-02-19-36-56.pt
+    # swin: ${eval.model_path.root}/best_swin_RoBERTa.pt
+    # multimodal: ${eval.model_path.root}/multimodal_T+A+V_RoBERTa.pt
+
+
+
+
+
+
+
+
