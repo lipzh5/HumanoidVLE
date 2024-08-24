@@ -2,6 +2,7 @@
 # @Author: Peizhen Li 
 # @Desc: None
 
+import os.path as osp
 import torch
 import torch.nn as nn
 import numpy as np
@@ -18,10 +19,29 @@ log = logging.getLogger(__name__)
 from utils import *
 from mmcv.cnn import xavier_init
 
-from const import ATTN_MASK_FILL
+from const import ATTN_MASK_FILL, FPS, EMOTION_TO_ANIM
+from CONF import max_faces, max_frames
 import hydra
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
+from PIL import Image
+import io
+import base64
+import os
 
+# os.environ['TOKENIZERS_PARALLELISM']='false'
+# os.environ["TORCH_DISTRIBUTED_DEBUG"] = "DETAIL"
+# import insightface
+# from insightface.app import FaceAnalysis
+# face_app = FaceAnalysis(providers=['CPUExecutionProvider', 'CUDAExecutionProvider'])  # 'CUDAExecutionProvider'
+# face_app.prepare(ctx_id=0, det_size=(640, 640))
+# from mtcnn import MTCNN
+
+# face_detector = MTCNN()
+from facenet_pytorch import MTCNN
+face_detector = MTCNN(keep_all=True)
+'''ref to: https://github.com/timesler/facenet-pytorch/blob/master/models/mtcnn.py'''
+
+original_img_shape = (720, 1280, 3)
 
 
 print(f'***** \n multimodal torch seed: {torch.initial_seed()}')
@@ -100,12 +120,7 @@ class TVTransformer(nn.Module):
 			output_hidden_states=True,
 			return_dict=True
 		)['last_hidden_state']
-		return self.text_linear(utterance_encoded)
-		# if self.fusion_strategy in FusionStrategy.NEED_ALL_TOKEN_EMB:   # Penny NOTE: Different from SPCL paper, we use all token reps!!!!
-		# 	return self.text_linear(utterance_encoded)
-		# mask_pos = (sentences == (self.mask_value)).long().max(1)[1]
-		# mask_outputs = utterance_encoded[torch.arange(mask_pos.shape[0]), mask_pos, :]
-		# return self.text_linear(mask_outputs)   # todo use mlp as the last layer
+		return self.text_linear(utterance_encoded) # Penny NOTE: Different from SPCL paper, we use all token reps!!!!
 	
 
 	
@@ -140,11 +155,14 @@ class TVTransformer(nn.Module):
 		return clarities
 	
 	def forward(self, text_input_ids, vision_inputs, vision_mask):
-
+		print(f'vle model forward11111 !!!')
 		text_mask = 1 - (text_input_ids == (self.pad_value)).long()
+		print(f'text mask: {text_mask.shape} \n ------------')
 		text_utt_linear = self.gen_text_reps(text_input_ids, text_mask).transpose(1, 0)  # [256, bs, 768]
+		print(f'text utt linear: {text_utt_linear.shape} \n ---------------')
 		
 		vision_linear = self.gen_vision_reps(vision_inputs, vision_mask)
+
 		if self.use_text_teacher:
 			clarities = self.get_text_clarities(text_input_ids)
 			text_confidence = clarities.gt(self.vfeat_teacher_conf_min).long()
@@ -166,35 +184,93 @@ class TVTransformer(nn.Module):
 		return reps, self.classifier(reps)
 
 
-def get_text_inputs_from_raw(raw_text_seq):
-	pass
+# @hydra.main(version_base=None, config_path='./', config_name='model_conf')
 
-def get_img_inputs_from_raw(raw_img_seq):
-	pass
-
-@hydra.main(version_base=None, config_path='./', config_name='model_conf')
-def get_model_instance(cfg: DictConfig) -> None:
+def get_model_instance(cfg) -> None:
 	np.random.seed(cfg.seed)
 	torch.manual_seed(cfg.seed)
 	random.seed(cfg.seed)
+	'''modify configuration'''
+	cfg.train.vfeat_from_pkl = False
+	cfg.train.resnet_trainable = True
+	cfg.data.vision_utt_max_len = 100
+	cfg.model.vision_encoder.use_webface_pretrain = True
 
 	model = TVTransformer(cfg)
 	if osp.exists(cfg.train.save_model_path):
-		print(f'load state dict: {ckpt_path} \n ******')
-		state_dict = torch.load(ckpt_path, map_location=torch.device('cuda'))
+		print(f'load state dict: {cfg.train.save_model_path} \n ******')
+		state_dict = torch.load(cfg.train.save_model_path, map_location=torch.device('cuda'))
 		model.load_state_dict(state_dict['model'])
 	model.requires_grad_(False)   # frozen teacher
-	# TODO load state dict from ckpt
-	print(f'model vle model: {type(model)} \n*****')
 	return model
 
-model = get_model_instance()
+cfg = OmegaConf.load('./models/model_conf.yaml')
+model = get_model_instance(cfg).cuda()
+print(f'model type in vle model: {type(model)}')
 
-def get_emotion_from_obs(raw_img_seq, raw_text_seq):
-	text_input_ids = get_text_inputs_from_raw(raw_text_seq)
-	img_inputs, img_mask = get_img_inputs_from_raw(raw_img_seq)
-	reps, logits = model(text_input_ids, img_inputs, img_mask)
-	pass
+
+
+def get_text_inputs_from_raw():
+	return diag_buffer.get_text_inputs_ids()
+
+
+
+#TODO select faces of active speakers
+
+def get_img_inputs_from_raw(ts_end, duration):
+	'''ref to: https://github.com/timesler/facenet-pytorch/blob/master/models/mtcnn.py'''
+	# frames = np.stack([
+	# 	np.asarray(Image.open(io.BytesIO(base64.b64decode(frame_buffer.buffer_content[-i-1]))))
+	# 	for i in range(HieraConf.n_frames_per_video)
+	# ])
+	n_frames = min(int(duration * FPS), max_frames)   
+	print(f'n frames for cur utterance: {n_frames} \n ******')
+	all_faces = []
+	ref_face = None
+	for i in range(n_frames, 0, -1):
+		img_arr = np.asarray(Image.open(io.BytesIO(frame_buffer.buffer_content[-i])))
+		face_tensors = face_detector(img_arr)   # (n, 3, 160, 160)
+		if face_tensors is not None:
+			n_faces = face_tensors.shape[0]
+			for i in range(n_faces):
+				face = face_tensors[i]
+				
+				'''person-specific normalization'''
+				if ref_face is None:
+					ref_face = face
+				face = face - ref_face  
+				face = normalize(face)   # TODO apply normalization???
+				all_faces.append(face)
+	
+	if all_faces:	
+		all_faces = torch.stack(all_faces)
+		all_faces, mask = pad_to_len(all_faces, max_faces, pad_value=0)
+		return all_faces, mask
+	mask = torch.zeros([max_faces,])
+	mask[:2] = 1    # in case no real faces
+	return torch.zeros([max_faces, 3, 160, 160]), mask.long()
+	# return np.concatenate(all_faces)  if all_faces else None
+	
+	
+
+
+def get_emotion_response(ts_end, duration):
+	text_input_ids = diag_buffer.get_text_inputs_ids()
+	print(f'type of text input ids: {type(text_input_ids)}, {len(text_input_ids)}, {text_input_ids.shape} \n *****')
+	# text_input_ids = torch.tensor(diag_buffer.get_text_inputs_ids())
+	img_inputs, img_mask = get_img_inputs_from_raw(ts_end, duration)
+	print(f'img inputs: {img_inputs.shape}, img_mask :{img_mask.shape} \n &&&&&&&&&&&')
+	# img_inputs, img_mask = get_img_inputs_from_raw()
+
+	reps, logits = model(text_input_ids.unsqueeze(0).cuda(), img_inputs.unsqueeze(0).cuda(), img_mask.unsqueeze(0).cuda())
+	emotion_label = torch.argmax(logits, dim=-1).item()
+	# get emotion response logits: tensor([[ 3.6438, -1.6010, -1.3019, -1.1872, -0.4439, -3.5593, -1.0467]]
+	print(f'get emotion response logits: {logits} \n =================')
+	anim = random.choice(EMOTION_TO_ANIM.get(emotion_label, []))
+
+	return anim
+
+
 
 
 

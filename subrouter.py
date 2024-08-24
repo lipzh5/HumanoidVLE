@@ -7,10 +7,10 @@ import zmq
 import zmq.asyncio
 from zmq.asyncio import Context
 from CONF import *
-from utils import frame_buffer
+from utils import frame_buffer, diag_buffer
 from const import ResponseCode
 from models import vle_model
-
+import time
 
 
 
@@ -34,12 +34,21 @@ class SubRouter:
 				frame_buffer.append_content(data)
 				if len(frame_buffer) % 100 == 0:
 					print(f'frame buffer len: {len(frame_buffer)}')
+				# print(f'time: {time.time()}')
 			except Exception as e:
 				print(str(e))
 				import traceback
 				traceback.print_stack()
 				print(f'===============')
-
+	
+	async def get_emotion_response(self, utterance, ts_end, duration):
+		diag_buffer.update_dialogue(utterance)
+		print(f'ts end: {ts_end}, duration: {duration} \n *******')
+		print(f'frame buffer arrival time: {frame_buffer.arrival_time} \n *****')
+		emo_anim = vle_model.get_emotion_response(float(ts_end.decode(encoding)), float(duration.decode(encoding)))
+		print(f'emotion emo_anim : {emo_anim }')
+		return ResponseCode.Success, emo_anim 
+		
 		
 	
 	async def route_vle_task(self):
@@ -49,12 +58,16 @@ class SubRouter:
 				identity = msg[0]
 				print(f'msg len:{len(msg)}')
 				print('route visual task identity: ', identity)
+				task_type = msg[1]
+				print(f'task type: {task_type} \n ******')
+
 				try:
-					# res_code, ans = await self.deal_visual_task(*msg[1:])
-					# if ans is None:
-					# 	ans = 'None'
+					
+					res_code, ans = await self.get_emotion_response(*msg[2:])
+					if ans is None:
+						ans = 'None'
 					res_code = ResponseCode.Success
-					ans = "None"
+	
 					print(f'task answer:{ans} \n ------- ')
 					resp = [identity, res_code]
 					if isinstance(ans, list) or isinstance(ans, tuple):

@@ -218,7 +218,8 @@ train:
   gradient_clip_value: 10   # 5: ref to SPCL , 10: ref to TelME , 0.8: ref to FacialMMT
   log_interval: 100
   # aux_log_interval: 100
-  save_model_path: ${cwd}/../common/models/pretrained_model/kd_teacher_tv_neutral_norm1.pth
+  save_model_path: ./../common/models/pretrained_model/kd_teacher_tv_neutral_norm1.pth
+  # save_model_path: ${cwd}/../common/models/pretrained_model/kd_teacher_tv_neutral_norm1.pth
 
 eval:
   model_path:
