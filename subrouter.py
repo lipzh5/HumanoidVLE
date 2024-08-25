@@ -7,7 +7,7 @@ import zmq
 import zmq.asyncio
 from zmq.asyncio import Context
 from CONF import *
-from utils import frame_buffer, diag_buffer
+from data_buffers import frame_buffer, diag_buffer
 from const import ResponseCode
 from models import vle_model
 import time

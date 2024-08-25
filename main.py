@@ -20,15 +20,41 @@ async def run_sub_router():
 from facenet_pytorch import MTCNN
 from PIL import Image
 import numpy as np
-face_detector = MTCNN(keep_all=True)
-def test_mtcnn():
-	img_arr = np.asarray(Image.open('debug.png'))
-	boxes, probs = face_detector.detect(img_arr)
-	print(f'type boxes: {type(boxes)}, {boxes.shape}\n {boxes}')
-	face_tensors = face_detector(img_arr, save_path='debug_face.png')
-	# face = mtcnn.preprocess(face_img, bbox_, points_, image_size=args.face_size)
 
-	print(f'shape face tensors: {face_tensors.shape}')
+face_detector = MTCNN(keep_all=True, post_process=False, select_largest=False)
+
+
+def get_center_faces(img_arr):
+	boxes, probs = face_detector.detect(img_arr)    # boxes: Nx4 array
+	box_order = np.argsort(np.abs((boxes[:, 2] + boxes[:, 0]) /2 - 640.))  # [::-1]
+	selected_boxes = boxes[0].reshape(-1, 4)
+	faces = face_detector.extract(img_arr, selected_boxes, save_path=None)
+	# faces = face_detector.extract(img_arr, selected_boxes, save_path='./assets/center_face.png')
+	return faces
+
+def test_mtcnn():
+	import torch
+	import cv2
+	import os.path as osp
+	cur_dir = osp.abspath(osp.dirname(__file__))
+	print(f'cur dir: {cur_dir} \n *****')
+	img_arr = np.asarray(Image.open(osp.join(cur_dir, 'assets/multipersons.jpg')))
+	img_arr = cv2.resize(img_arr, dsize=(1280, 720), interpolation=cv2.INTER_AREA)  # (720, 1280, 3)
+	print(f'img arr shape: {img_arr.shape}')
+	# cv2.imwrite('./assets/resized_multi.png', img_arr)
+	# raise ValueError('Penny stops here!!!')
+	face_tensors = get_center_faces(img_arr)
+	# debug_face = face_tensors[0].permute(1, 2, 0).numpy()
+	# cv2.imwrite('./assets/debug_save_face.png', cv2.cvtColor(debug_face, cv2.COLOR_RGB2BGR))
+	# print(f'face tesnors0 : {torch.sum(face_tensors[0])}, torch.max: {torch.max(face_tensors[0])}')
+	# print(f'face tensors[0]: {face_tensors[0].shape}, {torch.permute(face_tensors[0], (1, 2, 0)).shape}')
+	# print(f'face tensor 0: {face_tensors[0].permute(1,2,0).numpy().shape}')
+	# cv2.imwrite('./assets/debug_save_face.png', face_tensors[0].permute(1,2,0).numpy())
+
+	cv2.imwrite('./assets/debug_save_face.png', face_tensors[0].permute(1,2,0).numpy())
+
+	print(f'shape face tensors: {face_tensors.shape}')  # torch.Size([1, 3, 160, 160])
+
 
 
 
