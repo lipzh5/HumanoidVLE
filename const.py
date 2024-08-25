@@ -3,6 +3,9 @@ ATTN_MASK_FILL = -1e38 # -1e-9  #
 
 FPS = 25 
 
+ORIGINAL_IMG_SHAPE = (720, 1280, 3)  # (h, w, c)
+FACE_IMG_SHAPE = (160, 160)
+
 
 class ResponseCode:
 	KeepSilent = b'0' 
