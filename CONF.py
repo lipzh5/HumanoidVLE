@@ -1,9 +1,9 @@
 '''ip addresses'''
 
-ip = '10.6.37.149'   # dynamic ip of the robot
+ip = '10.6.37.145'   # dynamic ip of the robot
 vsub_addr = f'tcp://{ip}:5000'  # From Ameca, 5000: mjpeg
 
-trout_addr = f'tcp://{ip}:2007' #'tcp://10.126.110.67:2006'
+trout_addr = f'tcp://{ip}:2017' #'tcp://10.126.110.67:2006'
 
 
 
@@ -11,6 +11,7 @@ trout_addr = f'tcp://{ip}:2007' #'tcp://10.126.110.67:2006'
 
 encoding = 'utf-8'
 frame_buffer_max_len = 640
+diag_buffer_max_len = 20
 target_size = 160
 pretrained_path = 'princeton-nlp/sup-simcse-roberta-large'
 

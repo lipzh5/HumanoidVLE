@@ -41,8 +41,10 @@ class SubRouter:
 				traceback.print_stack()
 				print(f'===============')
 	
-	async def get_emotion_response(self, utterance, ts_end, duration):
+	async def get_emotion_response(self, utterance, ts_end, duration, from_ameca):
 		diag_buffer.update_dialogue(utterance)
+		if int(from_ameca.decode(encoding)) > 0:
+			return ResponseCode.KeepSilent, ''
 		print(f'ts end: {ts_end}, duration: {duration} \n *******')
 		print(f'frame buffer arrival time: {frame_buffer.arrival_time} \n *****')
 		emo_anim = vle_model.get_emotion_response(float(ts_end.decode(encoding)), float(duration.decode(encoding)))

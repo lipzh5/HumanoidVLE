@@ -4,10 +4,9 @@
 
 import torch
 from collections import deque
-from CONF import frame_buffer_max_len, target_size, pretrained_path, encoding
+from CONF import diag_buffer_max_len, frame_buffer_max_len, target_size, pretrained_path, encoding
 import time
-from utils import tokenizer, pad_to_len
-
+from utils import *
 
 class FrameBuffer:
 	_instance = None
@@ -45,7 +44,7 @@ class FrameBuffer:
 
 class DialogueBuffer:
 	_instance = None
-	dialogue = []
+	dialogue = deque()
 
 	def __new__(cls, *args, **kwargs):
 		if cls._instance is None:
@@ -55,12 +54,16 @@ class DialogueBuffer:
 
 	@classmethod
 	def update_dialogue(cls, utterance):  # TODO add speaker info later
+		while len(cls.dialogue) >= diag_buffer_max_len:
+			cls.dialogue.popleft()
 		cls.dialogue.append(utterance)
 		print(f'dia buffer dialog :{len(cls.dialogue)}, utterance: {utterance} \n ****')
 
-	@classmethod
-	def reset(cls):
-		cls.dialogue = []
+	def __len__(self):
+		return len(self.dialogue)
+	# @classmethod
+	# def reset(cls):
+	# 	cls.dialogue = []
 
 	@classmethod
 	def get_text_inputs_ids(cls):
@@ -86,7 +89,7 @@ class DialogueBuffer:
 			prompt = 'speaker feels <mask>'
 			full_query = query_ids + utterance_ids[query_idx] + tokenizer(prompt)['input_ids'][1:]
 			input_ids = full_context + full_query
-			print(f'len input ids: {len(input_ids)} \n &&&&&&&&&&&&&&&&&')
+			# print(f'len input ids: {len(input_ids)} \n &&&&&&&&&&&&&&&&&')
 			input_ids, _ = pad_to_len(input_ids, max_len=context_max_len, pad_value=context_pad_value) # CONFIG['max_len'], CONFIG['pad_value']
 		return torch.tensor(input_ids)
 		 

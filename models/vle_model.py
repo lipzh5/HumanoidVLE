@@ -17,6 +17,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from utils import *
+from data_buffers import frame_buffer, diag_buffer
 from mmcv.cnn import xavier_init
 
 from const import ATTN_MASK_FILL, FPS, EMOTION_TO_ANIM, ORIGINAL_IMG_SHAPE
