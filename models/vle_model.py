@@ -17,11 +17,10 @@ import logging
 log = logging.getLogger(__name__)
 
 from utils import *
-from data_buffers import frame_buffer, diag_buffer
 from mmcv.cnn import xavier_init
 
 from const import ATTN_MASK_FILL, FPS, EMOTION_TO_ANIM, ORIGINAL_IMG_SHAPE
-from CONF import max_faces, max_frames
+from CONF import MAX_FACES, MAX_FRAMES
 import hydra
 from omegaconf import DictConfig, OmegaConf
 from PIL import Image
@@ -211,69 +210,14 @@ print(f'model type in vle model: {type(model)}')
 
 
 
-def get_text_inputs_from_raw():
-	return diag_buffer.get_text_inputs_ids()
-
-
-
-#TODO select faces of active speakers
-
-
-def get_center_faces(img_arr):
-	boxes, probs = face_detector.detect(img_arr)    # boxes: Nx4 array
-	if boxes is None:
-		return None
-	box_order = np.argsort(np.abs((boxes[:, 2] + boxes[:, 0]) /2 - ORIGINAL_IMG_SHAPE[1]//2))  # [::-1]
-	selected_boxes = boxes[0].reshape(-1, 4)
-	faces = face_detector.extract(img_arr, selected_boxes, save_path=None)
-	return faces
-
-
-def get_img_inputs_from_raw(ts_end, duration):
-	'''ref to: https://github.com/timesler/facenet-pytorch/blob/master/models/mtcnn.py'''
-	
-	n_frames = min(int(duration * FPS), max_frames)   
-	all_faces = []
-	ref_face = None
-	for i in range(n_frames, 0, -1):
-		img_arr = np.asarray(Image.open(io.BytesIO(frame_buffer.buffer_content[-i])))
-		# face_tensors = face_detector(img_arr)   # (n, 3, 160, 160)
-		face_tensors = get_center_faces(img_arr)
-		if face_tensors is not None:
-			# # debug 
-			im = Image.open(io.BytesIO(frame_buffer.buffer_content[-i]))
-			im.save('debug_multi_face.png')
-			# ==============
-			n_faces = face_tensors.shape[0]
-			for i in range(n_faces):
-				face = face_tensors[i]
-				
-				'''person-specific normalization'''
-				if ref_face is None:
-					ref_face = face
-				face = face - ref_face  
-				face = normalize(face)   # TODO apply normalization???
-				all_faces.append(face)
-	
-	if all_faces:	
-		all_faces = torch.stack(all_faces)
-		all_faces, mask = pad_to_len(all_faces, max_faces, pad_value=0)
-		return all_faces, mask
-	mask = torch.zeros([max_faces,])
-	mask[:2] = 1    # in case no real faces
-	return torch.zeros([max_faces, 3, 160, 160]), mask.long()
-	# return np.concatenate(all_faces)  if all_faces else None
-	
-	
-
 
 def get_emotion_response(ts_end, duration):
-	text_input_ids = diag_buffer.get_text_inputs_ids()
+	text_input_ids = get_text_inputs_from_raw()
+	# text_input_ids = diag_buffer.get_text_inputs_ids()
 	# print(f'type of text input ids: {type(text_input_ids)}, {len(text_input_ids)}, {text_input_ids.shape} \n *****')
 	# text_input_ids = torch.tensor(diag_buffer.get_text_inputs_ids())
-	img_inputs, img_mask = get_img_inputs_from_raw(ts_end, duration)
+	img_inputs, img_mask = get_vision_inputs_from_raw(ts_end, duration)
 	# print(f'img inputs: {img_inputs.shape}, img_mask :{img_mask.shape} \n &&&&&&&&&&&')
-	# img_inputs, img_mask = get_img_inputs_from_raw()
 	reps, logits = model(text_input_ids.unsqueeze(0).cuda(), img_inputs.unsqueeze(0).cuda(), img_mask.unsqueeze(0).cuda())
 	emotion_label = torch.argmax(logits, dim=-1).item()
 	# get emotion response logits: tensor([[ 3.6438, -1.6010, -1.3019, -1.1872, -0.4439, -3.5593, -1.0467]]
