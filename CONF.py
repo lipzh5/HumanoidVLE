@@ -1,9 +1,9 @@
 '''ip addresses'''
 
-ip = '10.6.37.158'   # dynamic ip of the robot
+ip = '10.6.37.135'   # dynamic ip of the robot
 vsub_addr = f'tcp://{ip}:5000'  # From Ameca, 5000: mjpeg
 
-trout_addr = f'tcp://{ip}:2015' #'tcp://10.126.110.67:2006'
+trout_addr = f'tcp://{ip}:2010' #'tcp://10.126.110.67:2006'
 
 
 

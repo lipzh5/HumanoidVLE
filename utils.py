@@ -1,16 +1,23 @@
 # -*- coding:utf-8 -*-
-# @Author: Peizhen Li 
-# @Desc: None
 import torch
 from collections import deque
-from CONF import frame_buffer_max_len, target_size, pretrained_path, encoding
 from transformers import AutoTokenizer, RobertaTokenizer, RobertaModel, AutoImageProcessor
 import torchvision.transforms as transforms
 import cv2
 import numpy as np
 from facenet_pytorch import InceptionResnetV1
 import time
+from PIL import Image
+import io
 from data_buffers import frame_buffer, diag_buffer
+from const import *
+from CONF import *
+
+# face_detector = MTCNN()
+from facenet_pytorch import MTCNN
+face_detector = MTCNN(keep_all=True, post_process=False, select_largest=False)
+'''ref to: https://github.com/timesler/facenet-pytorch/blob/master/models/mtcnn.py'''
+
 
 
 
@@ -138,14 +145,14 @@ def get_text_inputs_from_raw():
 	return torch.tensor(input_ids)
 # ===========================↑↑↑ context modeling ↑↑↑==========================
 
-def get_center_faces(img_arr):
+def get_center_faces(img_arr, save_path='debug_face.png'):
 	"""extract faces from raw image"""
 	boxes, probs = face_detector.detect(img_arr)    # boxes: Nx4 array
 	if boxes is None:
 		return None
 	box_order = np.argsort(np.abs((boxes[:, 2] + boxes[:, 0]) /2 - ORIGINAL_IMG_SHAPE[1]//2))  # [::-1]
 	selected_boxes = boxes[0].reshape(-1, 4)
-	faces = face_detector.extract(img_arr, selected_boxes, save_path=None)
+	faces = face_detector.extract(img_arr, selected_boxes, save_path=save_path)
 	return faces
 
 #TODO select faces of active speakers
@@ -159,7 +166,7 @@ def get_vision_inputs_from_raw(ts_end, duration):
 	for i in range(n_frames, 0, -1):
 		img_arr = np.asarray(Image.open(io.BytesIO(frame_buffer.buffer_content[-i])))
 		# face_tensors = face_detector(img_arr)   # (n, 3, 160, 160)
-		face_tensors = get_center_faces(img_arr)
+		face_tensors = get_center_faces(img_arr, f'debug_face_{i}.png')
 		if face_tensors is not None:
 			n_faces = face_tensors.shape[0]
 			for i in range(n_faces):
@@ -253,15 +260,16 @@ def get_vision_inputs_from_raw_telme(ts_end, duration):
 		if count % step == 0:
 			frames.append(img_arr)
 
-	if len(frames) >= 8:
-		inputs = feature_extractor(frames[:8], return_tensors="pt")
-		vision_inputs = inputs["pixel_values"][0]      
-	else:
+	# if len(frames) >= 8:
+	# 	inputs = video_processor(frames[:8], return_tensors="pt")
+	# 	vision_inputs = inputs["pixel_values"][0]      
+	# else:
+	if len(frames) < 8:
 		lack = 8 - len(frames)
 		extend_frames = [ frames[-1].copy() for _ in range(lack)]
 		frames.extend(extend_frames)  
-		inputs = feature_extractor(frames[:8], return_tensors="pt")
-		vision_inputs = inputs["pixel_values"][0]
+	inputs = video_processor(frames[:8], return_tensors="pt")
+	vision_inputs = inputs["pixel_values"][0]
 	return padding_video([vision_inputs])
 
 # ========================================================

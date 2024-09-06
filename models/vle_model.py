@@ -36,12 +36,6 @@ import os
 # face_app.prepare(ctx_id=0, det_size=(640, 640))
 # from mtcnn import MTCNN
 
-# face_detector = MTCNN()
-from facenet_pytorch import MTCNN
-face_detector = MTCNN(keep_all=True, post_process=False, select_largest=False)
-'''ref to: https://github.com/timesler/facenet-pytorch/blob/master/models/mtcnn.py'''
-
-
 
 
 print(f'***** \n multimodal torch seed: {torch.initial_seed()}')
@@ -52,7 +46,7 @@ class TVTransformer(nn.Module):
 	"""
 	def __init__(self, cfg):
 		print(f'***** \n 777multimodal init torch seed: {torch.initial_seed()}')
-		print(f'***** \n 777multimodal init cuda seed: {torch.cuda.initial_seed()}')
+		# print(f'***** \n 777multimodal init cuda seed: {torch.cuda.initial_seed()}')
 		super().__init__()
 		# cross transformer modules
 		transformer_conf = cfg.model.transformers
@@ -155,11 +149,11 @@ class TVTransformer(nn.Module):
 		return clarities
 	
 	def forward(self, text_input_ids, vision_inputs, vision_mask):
-		print(f'vle model forward11111 !!!')
+		# print(f'vle model forward11111 !!!')
 		text_mask = 1 - (text_input_ids == (self.pad_value)).long()
-		print(f'text mask: {text_mask.shape} \n ------------')
+		# print(f'text mask: {text_mask.shape} \n ------------')
 		text_utt_linear = self.gen_text_reps(text_input_ids, text_mask).transpose(1, 0)  # [256, bs, 768]
-		print(f'text utt linear: {text_utt_linear.shape} \n ---------------')
+		# print(f'text utt linear: {text_utt_linear.shape} \n ---------------')
 		
 		vision_linear = self.gen_vision_reps(vision_inputs, vision_mask)
 

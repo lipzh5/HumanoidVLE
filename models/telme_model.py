@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import os, sys
+import random
 import math
 import pandas as pd
 import os.path as osp
@@ -148,6 +149,9 @@ def get_models():
 	cur_dir = osp.abspath(osp.dirname(__file__))
 	print(f'cur dir: {cur_dir} \n****')
 	save_model_dir = osp.join(cur_dir, '../../TelME/MELD/MELD/save_model')
+	text_model = "roberta-large"
+	video_model = "facebook/timesformer-base-finetuned-k400"
+	clsNum = 7
 	model_t = Teacher_model(text_model, clsNum)
 	# model_t.load_state_dict(torch.load('./MELD/save_model/teacher.bin'))
 	model_t.load_state_dict(torch.load(osp.join(save_model_dir, 'teacher.bin')))
@@ -157,7 +161,7 @@ def get_models():
 
 	video_s = Student_Video(video_model, clsNum)
 	# video_s.load_state_dict(torch.load('./MELD/save_model/student_video/total_student.bin')) 
-	video_s.load_state_dict(torch.load(osp.join(save_model_dir, 'student_video/total_sudent.bin')))
+	video_s.load_state_dict(torch.load(osp.join(save_model_dir, 'student_video/total_student.bin')))
 	video_s.requires_grad_(False)
 	video_s = video_s.cuda()
 	video_s.eval()
@@ -175,9 +179,9 @@ def get_models():
 
 model_t, model_s, fusion_module = get_models()
 	
-def telme_inference(input_tokens, attention_mask, video_inputs):
+def telme_inference(input_tokens, attention_masks, video_inputs):
 	text_hidden, test_logits = model_t(input_tokens, attention_masks)
-	video_hidden, video_logits = video_s(video_inputs)  #  torch.Size([4, 8, 3, 224, 224])
+	video_hidden, video_logits = model_s(video_inputs)  #  torch.Size([4, 8, 3, 224, 224])
 	logits = fusion_module(text_hidden, video_hidden)
 	# print(f'get emotion response logits: {logits} \n =================')
 	emotion_label = torch.argmax(logits, dim=-1).item()
@@ -187,7 +191,7 @@ def telme_inference(input_tokens, attention_mask, video_inputs):
 
 
 def get_emotion_response(ts_end, duration):
-	input_tokens, attention_mask = get_text_inputs_from_raw_telme()
+	input_tokens, attention_masks = get_text_inputs_from_raw_telme()
 	# print(f'type of text input ids: {type(text_input_ids)}, {len(text_input_ids)}, {text_input_ids.shape} \n *****')
 	# text_input_ids = torch.tensor(diag_buffer.get_text_inputs_ids())
 	video_inputs = get_vision_inputs_from_raw_telme(ts_end, duration)
@@ -195,7 +199,7 @@ def get_emotion_response(ts_end, duration):
 	# img_inputs, img_mask = get_img_inputs_from_raw()
 	# reps, logits = model(text_input_ids.unsqueeze(0).cuda(), img_inputs.unsqueeze(0).cuda(), img_mask.unsqueeze(0).cuda())
 
-	return telme_inference(input_tokens, attention_mask, video_inputs)
+	return telme_inference(input_tokens.cuda(), attention_masks.cuda(), video_inputs.cuda())
 
 
 if __name__ == "__main__":

@@ -69,9 +69,45 @@ def test_emotion_response():
 	anim = vle_model.get_emotion_response(0, 0)
 	print(anim)
 
-	pass
+
+def test_vision_input():
+	from models.vle_model import model
+	from data_buffers import diag_buffer
+	from utils import get_text_inputs_from_raw, pad_to_len, normalize, transform
+	import os.path as osp
+	from PIL import Image
+	import numpy as np
+	import torch
+	import random
+	from const import EMOTION_TO_ANIM
+	diag_buffer.update_dialogue(b'enen')
+	text_input_ids = get_text_inputs_from_raw()
+	debug_face_dir = './assets/debug_faces_happy'
+	all_faces = []
+	ref_frame = None
+	for _ in range(5):
+		for i in range(1, 21):
+			face_path = osp.join(debug_face_dir, f'debug_face_{i}.png')
+			img_arr = np.asarray(Image.open(face_path))
+			if ref_frame is None:
+				ref_frame = img_arr
+			img_arr = img_arr - ref_frame
+			all_faces.append(transform(img_arr))
+	all_faces = torch.stack(all_faces)
+	print(f'all faces.shape: {all_faces.shape}')
+	all_faces, mask = pad_to_len(all_faces, 100, pad_value=0)
+	print(f'all faces22: {all_faces.shape}, mask shape:{mask.shape}')
+	reps, logits = model(text_input_ids.unsqueeze(0).cuda(), all_faces.unsqueeze(0).cuda(), mask.unsqueeze(0).cuda())
+	print(f'logits: {logits} \n****')
+	emotion_label = torch.argmax(logits, dim=-1).item()
+	anim = random.choice(EMOTION_TO_ANIM.get(emotion_label, []))
+	print(f'anim: {anim}')
+
+
+
 
 if __name__ == "__main__":
+	# test_vision_input()
 	# test_emotion_response()
 	# test_mtcnn()
 	asyncio.run(run_sub_router())
