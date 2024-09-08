@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-# @Author: Peizhen Li 
 # @Desc: None
 import os
 os.environ['TOKENIZERS_PARALLELISM']='false'
@@ -73,27 +72,40 @@ def test_emotion_response():
 def test_vision_input():
 	from models.vle_model import model
 	from data_buffers import diag_buffer
-	from utils import get_text_inputs_from_raw, pad_to_len, normalize, transform
+	from utils import get_text_inputs_from_raw, pad_to_len, normalize, transform, resize
 	import os.path as osp
 	from PIL import Image
 	import numpy as np
 	import torch
 	import random
 	from const import EMOTION_TO_ANIM
-	diag_buffer.update_dialogue(b'enen')
+	# diag_buffer.update_dialogue(b'Someone one the subway licked my neck! Licked my neck!')
+	# diag_buffer.update_dialogue(b'On Willies still alive!')
+	# diag_buffer.update_dialogue(b'What are you guys doing?')
+	# diag_buffer.update_dialogue(b'On, my mom called, theyre gonna run our engagement announcement in the local paper, so we were looking for a good picture of us.')
+	# diag_buffer.update_dialogue(b'Oooh, I am afraid that does not exist.')
+	diag_buffer.update_dialogue(b'Ohh!')
+	diag_buffer.update_dialogue(b'What?')
 	text_input_ids = get_text_inputs_from_raw()
-	debug_face_dir = './assets/debug_faces_happy'
+	# debug_face_dir = './assets/dia4_utt1'
+	debug_face_dir = './assets/debug_faces_sad'
 	all_faces = []
 	ref_frame = None
-	for _ in range(5):
-		for i in range(1, 21):
-			face_path = osp.join(debug_face_dir, f'debug_face_{i}.png')
-			img_arr = np.asarray(Image.open(face_path))
-			if ref_frame is None:
-				ref_frame = img_arr
-			img_arr = img_arr - ref_frame
-			all_faces.append(transform(img_arr))
+	# for _ in range(5):
+	for i in range(1, 50):
+		# face_path = osp.join(debug_face_dir, f'frame_det_00_{str(i).zfill(6)}.bmp')
+		face_path = osp.join(debug_face_dir, f'debug_face_{i}.png')
+		img_arr = np.asarray(Image.open(face_path))
+		if ref_frame is None:
+			ref_frame = img_arr
+		img_arr = img_arr - ref_frame
+		all_faces.append(transform(resize(img_arr)))
+
 	all_faces = torch.stack(all_faces)
+	# all_faces = torch.zeros([100, 3, 160, 160])
+	# print(f'max faces: {}')
+	# all_faces = torch.rand([100, 3, 160, 160])
+	
 	print(f'all faces.shape: {all_faces.shape}')
 	all_faces, mask = pad_to_len(all_faces, 100, pad_value=0)
 	print(f'all faces22: {all_faces.shape}, mask shape:{mask.shape}')
@@ -104,9 +116,17 @@ def test_vision_input():
 	print(f'anim: {anim}')
 
 
+def test_emo_rec():
+	from models.emotion_rec import emo_recognizer
+	import asyncio
+	asyncio.run(emo_recognizer.on_emotion_recog_task('b'))
+	pass
+
+
 
 
 if __name__ == "__main__":
+	# test_emo_rec()
 	# test_vision_input()
 	# test_emotion_response()
 	# test_mtcnn()

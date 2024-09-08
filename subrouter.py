@@ -27,7 +27,7 @@ class SubRouter:
 
 		self.text_router_sock = ctx.socket(zmq.ROUTER)
 		self.text_router_sock.connect(trout_addr)
-		self.ameca_just_said  = False
+		# self.ameca_just_said  = False
 
 	async def sub_vcap_data(self):
 		while True:
@@ -44,16 +44,18 @@ class SubRouter:
 				print(f'===============')
 	
 	async def get_emotion_response(self, utterance, ts_end, duration, from_ameca):
+		print(f'ts_end :{ts_end}, duration: {duration} \n***** ')
 		diag_buffer.update_dialogue(utterance)
 		if int(from_ameca.decode(encoding)) > 0:
-			if self.ameca_just_said:
-				return ResponseCode.KeepSilent, ''
-			self.ameca_just_said = True   # Ameca may send sentence in pieces, just do inference for the first time
-		else:
-			self.ameca_just_said = False
+			return ResponseCode.KeepSilent, ''
+		# 	if self.ameca_just_said:
+		# 		return ResponseCode.KeepSilent, ''
+		# 	self.ameca_just_said = True   # Ameca may send sentence in pieces, just do inference for the first time
+		# else:
+		# 	self.ameca_just_said = False
 		# print(f'ts end: {ts_end}, duration: {duration} \n *******')
 		# print(f'frame buffer arrival time: {frame_buffer.arrival_time} \n *****')
-		emo_anim = vle_model.get_emotion_response(float(ts_end.decode(encoding)), float(duration.decode(encoding)))
+		emo_anim = await vle_model.get_emotion_response(float(ts_end.decode(encoding)), float(duration.decode(encoding)))
 		# emo_anim = telme_model.get_emotion_response(float(ts_end.decode(encoding)), float(duration.decode(encoding)))
 		# print(f'emotion emo_anim : {emo_anim }')
 		return ResponseCode.Success, emo_anim 

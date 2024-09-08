@@ -18,6 +18,21 @@ from facenet_pytorch import MTCNN
 face_detector = MTCNN(keep_all=True, post_process=False, select_largest=False)
 '''ref to: https://github.com/timesler/facenet-pytorch/blob/master/models/mtcnn.py'''
 
+# ==================↓↓↓ OpenAI API ↓↓↓==================
+from openai import AsyncOpenAI
+import os.path as osp
+file_path = osp.dirname(osp.abspath(__file__))
+api_key = ''
+try:
+	with open(osp.join(file_path, "openai_key.txt")) as fd:
+		api_key = fd.read().strip()
+		print('open ai key: ', api_key)
+except FileNotFoundError:
+	print('could not find open ai key file')
+    
+client = AsyncOpenAI(api_key=api_key)
+# ==================↑↑↑ OpenAI API ↑↑↑==================
+
 
 
 
@@ -145,7 +160,7 @@ def get_text_inputs_from_raw():
 	return torch.tensor(input_ids)
 # ===========================↑↑↑ context modeling ↑↑↑==========================
 
-def get_center_faces(img_arr, save_path='debug_face.png'):
+def get_center_faces(img_arr, save_path=None):
 	"""extract faces from raw image"""
 	boxes, probs = face_detector.detect(img_arr)    # boxes: Nx4 array
 	if boxes is None:
@@ -155,18 +170,19 @@ def get_center_faces(img_arr, save_path='debug_face.png'):
 	faces = face_detector.extract(img_arr, selected_boxes, save_path=save_path)
 	return faces
 
-#TODO select faces of active speakers
 
-def get_vision_inputs_from_raw(ts_end, duration):
+
+def get_vision_inputs_from_raw(n_frames):
 	'''ref to: https://github.com/timesler/facenet-pytorch/blob/master/models/mtcnn.py'''
-	
-	n_frames = min(int(duration * FPS), MAX_FRAMES)   
+	# n_frames = min(int(duration * FPS), MAX_FRAMES)   
 	all_faces = []
 	ref_face = None
 	for i in range(n_frames, 0, -1):
 		img_arr = np.asarray(Image.open(io.BytesIO(frame_buffer.buffer_content[-i])))
-		# face_tensors = face_detector(img_arr)   # (n, 3, 160, 160)
-		face_tensors = get_center_faces(img_arr, f'debug_face_{i}.png')
+		'''ablation 1: talking speaker face extraction (together with sound tracking)'''
+		face_tensors = face_detector(img_arr)   # (n, 3, 160, 160)
+		print(f'face tensors: {face_tensors.shape} \n*****')
+		# face_tensors = get_center_faces(img_arr) 
 		if face_tensors is not None:
 			n_faces = face_tensors.shape[0]
 			for i in range(n_faces):
@@ -187,6 +203,19 @@ def get_vision_inputs_from_raw(ts_end, duration):
 	return torch.zeros([MAX_FACES, 3, 160, 160]), mask.long()
 	# return np.concatenate(all_faces)  if all_faces else None
 
+def get_vision_inputs_from_raw_no_faceext(n_frames):
+	'''ablation 2: no face extraction'''
+	all_frames = []
+	for i in range(n_frames, 0, -1):
+		img_arr = np.asarray(Image.open(io.BytesIO(frame_buffer.buffer_content[-i])))
+		all_frames.append(transform(resize(img_arr)))
+	if all_frames:
+		all_frames = torch.stack(all_frames)
+		all_frames, mask = pad_to_len(all_frames, MAX_FACES , pad_value=0)
+		return all_frames, mask
+	mask = torch.zeros([MAX_FACES,])
+	mask[:2] = 1    # in case no real faces
+	return torch.zeros([MAX_FACES, 3, 160, 160]), mask.long()
 
 
 # ========================================================
