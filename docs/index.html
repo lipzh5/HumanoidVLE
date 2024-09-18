@@ -24,7 +24,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-  <title>UGotMe: An Embodied System for <br> Affective Human-Robot Interaction</title>
+  <title>UGotMe: An Embodied System <br> for Affective Human-Robot Interaction</title>
   <link rel="icon" type="image/x-icon" href="static/images/ameca_favicon.ico">
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
   rel="stylesheet">
@@ -43,6 +43,83 @@
   <script src="static/js/bulma-carousel.min.js"></script>
   <script src="static/js/bulma-slider.min.js"></script>
   <script src="static/js/index.js"></script>
+
+  <!-- TODO move to css file -->
+  <style>
+    .small-sup {
+        font-size: 0.6em; /* Smaller size */
+    }
+    .institution-logo {
+            margin-top: 20px; /* top margin */
+            max-width: 175px; /* max width */
+        }
+
+    .image-container {
+        display: flex; /* Use flexbox for layout */
+        justify-content: center; /* Center images horizontally */
+        gap: 20px; /* Space between images */
+    }
+    .image-container figure {
+        text-align: center; /* Center the caption */
+    }
+
+    .image-container figcaption {
+    margin-top: 8px; /* Adds space between the image and caption */
+
+  }
+  .content {
+    max-width: 100%;    /* Set the maximum width for the caption text */
+    margin: 0 auto;    /* Center the content */
+    line-height: 1.5;  /* Improves readability */
+}
+
+    .image-container img {
+        /* width: 459px; Set fixed width */
+        /* height: 220px; Set fixed height */
+        margin-top: 15px; /* top margin */
+        flex-basis: 100%;
+        object-fit: cover; /* Maintain aspect ratio */
+    }
+
+    .single-image {
+        flex-basis: 100%; /* Take full width for the single image */
+        margin-top: 20px; /* Space above the single image */
+    }
+
+    .video-container {
+            display: flex; /* Use flexbox for layout */
+            /* justify-content: space-between; Space between videos */
+            /* margin: 20px;  Optional margin */
+        }
+    .video {
+            position: relative; /* Position for watermark */
+            width: 500px; /* Fixed width for the video */
+            margin-right: 20px; /* Right margin for spacing */
+            /* margin: 0 10px;  Optional spacing between videos */
+    }
+    
+    .video:last-child {
+        margin-right: 0; /* Remove margin for the last video */
+    }
+    
+    video {
+        width: 100%; /* Responsive width */
+        height: auto; /* Maintain aspect ratio */
+    }
+    .watermark {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        /*bottom: 10px;  Position at bottom */
+        /*right: 10px;  Position at right */
+        background: rgba(255, 255, 255, 0.7); /* Semi-transparent background */
+        padding: 5px; /* Padding for the watermark */
+        font-size: 14px; /* Font size for the watermark */
+        color: black; /* Text color */
+        /*border-radius: 5px;  Rounded corners */
+    }
+  
+</style>
 </head>
 <body>
 
@@ -52,28 +129,31 @@
       <div class="container is-max-desktop">
         <div class="columns is-centered">
           <div class="column has-text-centered">
-            <h1 class="title is-1 publication-title">UGotMe: An Embodied System for <br> Affective Human-Robot Interaction</h1>
+            <h1 class="title is-1 publication-title">UGotMe: An Embodied System <br> for Affective Human-Robot Interaction</h1>
             <div class="is-size-5 publication-authors">
               <!-- Paper authors -->
               <span class="author-block">
-                <a href="https://lipzh5.github.io/Peizhen-Li/" target="_blank">Peizhen Li</a>,</span>
+                <a href="https://lipzh5.github.io/Peizhen-Li/" target="_blank">Peizhen Li</a><sup>*</sup>,</span>
                 <!-- <a href="FIRST AUTHOR PERSONAL LINK" target="_blank">First Author</a><sup>*</sup>,</span> -->
                 <span class="author-block">
-                  <a href="https://datasciences.org/" target="_blank">Longbing Cao</a>,</span>
+                  <a href="https://datasciences.org/" target="_blank">Longbing Cao</a><sup><span class="small-sup">&star;</span></sup>,</span>
                   <span class="author-block">
-                    <a href="https://dravenalg.github.io/" target="_blank">Xiao-Ming Wu</a>
+                    <a href="https://dravenalg.github.io/" target="_blank">Xiao-Ming Wu</a>,
                   </span>
                   <span class="author-block">
-                    <a href="https://xiaohanyu-gu.github.io/" target="_blank">Xiaohan Yu</a>
+                    <a href="https://xiaohanyu-gu.github.io/" target="_blank">Xiaohan Yu</a>,
                   </span>
                   <span class="author-block">
-                    Runze Yang
+                    <a href="Link to author's homepage" target="_blank">Runze Yang</a>
                   </span>
                   </div>
 
                   <div class="is-size-5 publication-authors">
+                    <span class="author-block"><sup>*</sup>Project lead, <sup><span class="small-sup">&star;</span></sup>Advisor</span>
                     <!-- <span class="author-block">Institution Name<br>Conferance name and year</span> -->
-                    <!-- <span class="eql-cntrb"><small><br><sup>*</sup>Indicates Equal Contribution</small></span> -->
+                    <!-- <span class="eql-cntrb"><small><br><sup>❄️</sup>Indicates Equal Contribution</small></span> -->
+                  </br>
+                    <img src="static/images/logo-mq.png" alt="mq-logo" class="institution-logo">
                   </div>
 
                   <div class="column has-text-centered">
@@ -100,16 +180,28 @@
                     </a>
                   </span>
 
-                  <!-- Github link -->
-                  <span class="link-block">
-                    <a href="https://github.com/YOUR REPO HERE" target="_blank"
+                   <!-- Github link -->
+                   <span class="link-block">
+                    <a href="https://github.com/lipzh5/AmecaVLE" target="_blank"
                     class="external-link button is-normal is-rounded is-dark">
                     <span class="icon">
                       <i class="fab fa-github"></i>
                     </span>
-                    <span>Code</span>
+                    <span>Hardware Code</span>
                   </a>
                 </span>
+
+                <!-- Github link -->
+                <span class="link-block">
+                    <a href="https://github.com/lipzh5/VisionLanguageEmotion" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>ML Code</span>
+                  </a>
+                </span>
+
 
                 <!-- ArXiv abstract Link -->
                 <span class="link-block">
@@ -136,16 +228,36 @@
     <div class="hero-body">
       <video poster="" id="tree" autoplay controls muted loop height="100%">
         <!-- Your video here -->
-        <source src="static/videos/banner_video.mp4"
+        <source src="static/videos/M1-4c.mp4"
         type="video/mp4">
       </video>
       <h2 class="subtitle has-text-centered">
-        Aliquam vitae elit ullamcorper tellus egestas pellentesque. Ut lacus tellus, maximus vel lectus at, placerat pretium mi. Maecenas dignissim tincidunt vestibulum. Sed consequat hendrerit nisl ut maximus. 
+        UGotMe effectively provides appropriate emotional responses to human
+        interactants while maintaining a positive user experience,
+        even in the presence of distracting factors
       </h2>
     </div>
   </div>
 </section>
 <!-- End teaser video -->
+
+
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+        <div class="image-container">
+          <figure>
+              <img src="static/images/distraction-3.png" alt="distraction", class=""single-image>
+              <figcaption>Distracting facial expressions confuse the model, leading to the wrong answer.</figcaption>
+          </figure>
+          
+        </div>
+
+    </div>
+    
+  </div>
+</section>
+
 
 <!-- Paper abstract -->
 <section class="section hero is-light">
@@ -155,7 +267,7 @@
         <h2 class="title is-3">Abstract</h2>
         <div class="content has-text-justified">
           <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ullamcorper tellus sed ante aliquam tempus. Etiam porttitor urna feugiat nibh elementum, et tempor dolor mattis. Donec accumsan enim augue, a vulputate nisi sodales sit amet. Proin bibendum ex eget mauris cursus euismod nec et nibh. Maecenas ac gravida ante, nec cursus dui. Vivamus purus nibh, placerat ac purus eget, sagittis vestibulum metus. Sed vestibulum bibendum lectus gravida commodo. Pellentesque auctor leo vitae sagittis suscipit.
+            Equipping humanoid robots with the capability to understand emotional states of human interactants and express emotions appropriately according to situations is essential for affective human-robot interaction. However, enabling current vision-aware multimodal emotion recognition models for affective human-robot interaction in the real-world raises embodiment challenges: addressing the environmental noise issue and meeting real-time requirements. First, in multiparty conversation scenarios, the noises inherited in the visual observation of the robot, which may come from either 1) distracting objects in the scene or 2) inactive speakers appearing in the field of view of the robot, hinder the models from extracting emotional cues from vision inputs. Secondly, realtime response, a desired feature for an interactive system, is also challenging to achieve. To tackle both challenges, we introduce an affective human-robot interaction system called UGotMe designed specifically for multiparty conversations. Two denoising strategies are proposed and incorporated into the system to solve the first issue. Specifically, to filter out distracting objects in the scene, we propose extracting face images of the speakers from the raw images and introduce a customized active face extraction strategy to rule out inactive speakers. As for the second issue, we employ efficient data transmission from the robot to the local server to improve realtime response capability. We deploy UGotMe on a human robot named Ameca to validate its real-time inference capabilities in practical scenarios.
           </p>
         </div>
       </div>
@@ -164,45 +276,165 @@
 </section>
 <!-- End paper abstract -->
 
-
-<!-- Image carousel -->
+<!-- core images -->
 <section class="hero is-small">
   <div class="hero-body">
-    <div class="container">
-      <div id="results-carousel" class="carousel results-carousel">
-       <div class="item">
-        <!-- Your image here -->
-        <img src="static/images/carousel1.jpg" alt="MY ALT TEXT"/>
-        <h2 class="subtitle has-text-centered">
-          First image description.
-        </h2>
-      </div>
-      <div class="item">
-        <!-- Your image here -->
-        <img src="static/images/carousel2.jpg" alt="MY ALT TEXT"/>
-        <h2 class="subtitle has-text-centered">
-          Second image description.
-        </h2>
-      </div>
-      <div class="item">
-        <!-- Your image here -->
-        <img src="static/images/carousel3.jpg" alt="MY ALT TEXT"/>
-        <h2 class="subtitle has-text-centered">
-         Third image description.
-       </h2>
-     </div>
-     <div class="item">
-      <!-- Your image here -->
-      <img src="static/images/carousel4.jpg" alt="MY ALT TEXT"/>
-      <h2 class="subtitle has-text-centered">
-        Fourth image description.
-      </h2>
+    <div class="container is-max-desktop">
+      <h2 class="title is-3">Approach overview</h2>
+        <div class="image-container">
+          <figure>
+              <img src="static/images/UGotMe.png" alt="project lead", class=""single-image>
+              <figcaption>
+                <figcaption>
+                  <div class="content has-text-centered">
+                    <div class="content has-text-justified">
+                    An overview of UGotMe, the proposed affective human-robot interaction system. The working pipeline includes
+                    on-robot multimodal perception (B) and on-edge vision-language to emotion modeling (C), where multimodal emotion
+                    recognition and robotic facial expression generation occur. D. Customized active face extraction (a)-(e) handles the
+                    environmental noise issue.
+
+                    </div>
+                    
+                  </div>
+                </figcaption>
+ 
+                </div>
+              </figcaption>
+          </figure>
+        </div>
+
     </div>
+    
   </div>
-</div>
-</div>
 </section>
-<!-- End image carousel -->
+
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3">Emotion Recognition Module</h2>
+        <div class="image-container">
+          <figure>
+              <img src="static/images/vle-model.png" alt="project lead", class=""single-image>
+              <figcaption>
+                <figcaption>
+                  <div class="content has-text-centered">
+                    <div class="content has-text-justified">
+                    An illustration of the VL2E model. The vision encoder of the
+                    VL2E model processes face sequences of active speakers and
+                    extracts visual features at the frame level. In this way, the
+                    model can ignore the presence of irrelevant environmental
+                    noise and better focus on the emotion-rich facial expressions. 
+                    To account for conversation context, we conduct context
+                    modeling when calculating the textual representation for the current utterance.
+                    To better model inter-modal interactions, we leverage the crossmodal transformer to perform multimodal fusion
+                    once the unimodal features are extracted.
+                    </div>
+                    
+                  </div>
+                </figcaption>
+ 
+                </div>
+              </figcaption>
+          </figure>
+        </div>
+
+    </div>
+    
+  </div>
+</section>
+
+
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3">Comparison Results</h2>
+        <div class="image-container">
+          <figure>
+              <img src="static/images/comp-deploy.png" alt="project lead", class=""single-image>
+              <figcaption>
+                <figcaption>
+                  <div class="content has-text-centered">
+                    <div class="content has-text-justified">
+                      Left: UGotMe-TelME. Right: UGotMe-VL2E. In both cases, the inactive speaker has a sad expression,
+                      while the active speaker, who is talking with Ameca, has a joyful expression. Dialogue context for both cases are: “The
+                      movie we saw last night is really impressive. That’s awesome. What movie did you watch? You jump, I jump”. Ameca is
+                      supposed to deliver the same emotion as the active speaker through facial expression. However, in the case of UGotMe-
+                      TelME, distracting face confuses the model, leading to the wrong answer.
+                    </div>
+                    
+                  </div>
+                </figcaption>
+ 
+                </div>
+              </figcaption>
+          </figure>
+        </div>
+
+    </div>
+    
+  </div>
+</section>
+
+
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="columns is-centered">
+      <div class="container is-max-desktop">
+        
+        <h2 class="title is-3">Real-world Deployment</h2>
+        <div class="video-container">
+          <div class="video">
+              <video controls>
+                  <source src="static/videos/M1-1c.mp4" type="video/mp4">
+              </video>
+              <div class="watermark">brokeup</div>
+          </div>
+          <div class="video">
+              <video controls>
+                  <source src="static/videos/M1-2c.mp4" type="video/mp4">
+              </video>
+              <div class="watermark">goodnews</div>
+          </div>
+        </div>
+
+        <div class="video-container">
+          <div class="video">
+              <video controls>
+                  <source src="static/videos/M1-3c.mp4" type="video/mp4">
+              </video>
+              <div class="watermark">cheat</div>
+          </div>
+          <div class="video">
+              <video controls>
+                  <source src="static/videos/M1-4c.mp4" type="video/mp4">
+              </video>
+              <div class="watermark">diary</div>
+          </div>
+        </div>
+
+        <div class="video-container">
+          <div class="video">
+              <video controls>
+                  <source src="static/videos/M1-5c.mp4" type="video/mp4">
+              </video>
+              <div class="watermark">movie</div>
+          </div>
+          <div class="video">
+              <video controls>
+                  <source src="static/videos/M1-6c.mp4" type="video/mp4">
+              </video>
+              <div class="watermark">examination</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    
+    
+    
+  </div>
+</section>
 
 
 
@@ -218,7 +450,7 @@
           
           <div class="publication-video">
             <!-- Youtube embed code here -->
-            <iframe src="https://www.youtube.com/embed/JkaxUblCGz0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/KX2dJPTpV34?si=V6nEuZW_FKKapjRK" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
           </div>
         </div>
       </div>
@@ -229,28 +461,28 @@
 
 
 <!-- Video carousel -->
-<section class="hero is-small">
+<!-- <section class="hero is-small">
   <div class="hero-body">
     <div class="container">
       <h2 class="title is-3">Another Carousel</h2>
       <div id="results-carousel" class="carousel results-carousel">
         <div class="item item-video1">
           <video poster="" id="video1" autoplay controls muted loop height="100%">
-            <!-- Your video file here -->
+          
             <source src="static/videos/carousel1.mp4"
             type="video/mp4">
           </video>
         </div>
         <div class="item item-video2">
           <video poster="" id="video2" autoplay controls muted loop height="100%">
-            <!-- Your video file here -->
+           
             <source src="static/videos/carousel2.mp4"
             type="video/mp4">
           </video>
         </div>
         <div class="item item-video3">
-          <video poster="" id="video3" autoplay controls muted loop height="100%">\
-            <!-- Your video file here -->
+          <video poster="" id="video3" autoplay controls muted loop height="100%">
+           
             <source src="static/videos/carousel3.mp4"
             type="video/mp4">
           </video>
@@ -258,7 +490,7 @@
       </div>
     </div>
   </div>
-</section>
+</section> -->
 <!-- End video carousel -->
 
 
@@ -267,7 +499,7 @@
 
 
 <!-- Paper poster -->
-<section class="hero is-small is-light">
+<!-- <section class="hero is-small is-light">
   <div class="hero-body">
     <div class="container">
       <h2 class="title">Poster</h2>
@@ -277,7 +509,7 @@
         
       </div>
     </div>
-  </section>
+  </section> -->
 <!--End paper poster -->
 
 
@@ -291,7 +523,7 @@
 <!--End BibTex citation -->
 
 
-  <footer class="footer">
+  <!-- <footer class="footer">
   <div class="container">
     <div class="columns is-centered">
       <div class="column is-8">
@@ -307,7 +539,7 @@
       </div>
     </div>
   </div>
-</footer>
+</footer> -->
 
 <!-- Statcounter tracking code -->
   
