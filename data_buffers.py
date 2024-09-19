@@ -58,6 +58,10 @@ class DialogueBuffer:
 			cls.dialogue.popleft()
 		cls.dialogue.append(utterance)
 		print(f'dia buffer dialog :{len(cls.dialogue)}, utterance: {utterance} \n ****')
+	
+	@classmethod
+	def clear_buffer(cls):
+		cls.dialogue.clear()
 
 	def __len__(self):
 		return len(self.dialogue)

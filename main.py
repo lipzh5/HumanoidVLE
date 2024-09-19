@@ -52,20 +52,21 @@ def test_mtcnn():
 
 	cv2.imwrite('./assets/debug_save_face.png', face_tensors[0].permute(1,2,0).numpy())
 
-	print(f'shape face tensors: {face_tensors.shape}')  # torch.Size([1, 3, 160, 160])
+	# print(f'shape face tensors: {face_tensors.shape}')  # torch.Size([1, 3, 160, 160])
 
 
 
 
-def test_emotion_response():
+async def test_emotion_response():
 	from models import vle_model
 	from utils import diag_buffer
-	diag_buffer.update_dialogue(b'how are you? ')
-	diag_buffer.update_dialogue(b'nice to meet you!')
-	diag_buffer.update_dialogue(b'I really hate you!')
-	diag_buffer.update_dialogue(b'Could you tell me your name?')
-	diag_buffer.update_dialogue(b'I do not understand what you meant')
-	anim = vle_model.get_emotion_response(0, 0)
+	diag_buffer.update_dialogue(b'enen')
+	# diag_buffer.update_dialogue(b'how are you? ')
+	# diag_buffer.update_dialogue(b'nice to meet you!')
+	# diag_buffer.update_dialogue(b'I really hate you!')
+	# diag_buffer.update_dialogue(b'Could you tell me your name?')
+	# diag_buffer.update_dialogue(b'I do not understand what you meant')
+	anim = await vle_model.get_emotion_response(0, 0)
 	print(anim)
 
 
@@ -84,15 +85,16 @@ def test_vision_input():
 	# diag_buffer.update_dialogue(b'What are you guys doing?')
 	# diag_buffer.update_dialogue(b'On, my mom called, theyre gonna run our engagement announcement in the local paper, so we were looking for a good picture of us.')
 	# diag_buffer.update_dialogue(b'Oooh, I am afraid that does not exist.')
-	diag_buffer.update_dialogue(b'Ohh!')
-	diag_buffer.update_dialogue(b'What?')
+	diag_buffer.update_dialogue(b'i am still working on my experiments')
+	# diag_buffer.update_dialogue(b'What?')
 	text_input_ids = get_text_inputs_from_raw()
 	# debug_face_dir = './assets/dia4_utt1'
-	debug_face_dir = './assets/debug_faces_sad'
+	# debug_face_dir = './assets/debug_faces_sad'
+	debug_face_dir = './assets/debug_faces_happy'
 	all_faces = []
 	ref_frame = None
 	# for _ in range(5):
-	for i in range(1, 50):
+	for i in range(1, 20):
 		# face_path = osp.join(debug_face_dir, f'frame_det_00_{str(i).zfill(6)}.bmp')
 		face_path = osp.join(debug_face_dir, f'debug_face_{i}.png')
 		img_arr = np.asarray(Image.open(face_path))
@@ -109,7 +111,7 @@ def test_vision_input():
 	print(f'all faces.shape: {all_faces.shape}')
 	all_faces, mask = pad_to_len(all_faces, 100, pad_value=0)
 	print(f'all faces22: {all_faces.shape}, mask shape:{mask.shape}')
-	reps, logits = model(text_input_ids.unsqueeze(0).cuda(), all_faces.unsqueeze(0).cuda(), mask.unsqueeze(0).cuda())
+	logits = model(text_input_ids.unsqueeze(0).cuda(), all_faces.unsqueeze(0).cuda(), mask.unsqueeze(0).cuda())
 	print(f'logits: {logits} \n****')
 	emotion_label = torch.argmax(logits, dim=-1).item()
 	anim = random.choice(EMOTION_TO_ANIM.get(emotion_label, []))
@@ -119,13 +121,22 @@ def test_vision_input():
 def test_emo_rec():
 	from models.emotion_rec import emo_recognizer
 	import asyncio
-	asyncio.run(emo_recognizer.on_emotion_recog_task('b'))
+	asyncio.run(emo_recognizer.on_multimodal_emotion_recog_task(b'', 'one'))
+	# asyncio.run(emo_recognizer.on_emotion_recog_task(b''))
 	pass
 
 
 
 
 if __name__ == "__main__":
+	# context = 'i am happy today'
+	# prompt = f"""You are talking with the person in front of you and guess the person's emotion base on the conversation context: {context}
+	# 		and observation in the form of image, candidate_emotions are: -1.not provided,
+	# 		 -1.other, 0.neutral, 1.surprise, 2.fear, 3.sadness, 4.joy, 5.disgust, 6.anger.
+	# 		 you should provide the emotion only, e.g., 1.surprise.
+	# 		 """
+	# print(f'prompt: {prompt}')
+	# asyncio.run(test_emotion_response())
 	# test_emo_rec()
 	# test_vision_input()
 	# test_emotion_response()

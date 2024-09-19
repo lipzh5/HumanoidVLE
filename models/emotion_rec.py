@@ -52,8 +52,45 @@ class EmotionRecognizer:
     #     return faces
 
 
-
+    
     async def on_emotion_recog_task(self, frame:bytes):
+        img = Image.open(BytesIO(frame))
+        # img.save(f'debug__{time.time()}.png')   # TODO 
+        b = io.BytesIO()
+        # print(f'type of bytes io: {type(b)} \n *******')
+        img.save(b, 'png')
+        base64_image = base64.b64encode(b.getvalue()).decode('utf-8')
+        # self.get_center_faces()
+        # base64_image = encode_image('/home/penny/pycharmprojects/amecavle/assets/debug_multi.png') # neutral
+        # base64_image = encode_image('/home/penny/pycharmprojects/amecavle/assets/debug_multi_1.png') # surprise
+        content = [
+            {"type": "text", 
+            "text": """You are talking with the person in front of you and guess the person's emotion base on the observation in the form of image, candidate_emotions are: -1.not provided,
+             -1.other, 0.neutral, 1.surprise, 2.fear, 3.sadness, 4.joy, 5.disgust, 6.anger.
+             you should provide the emotion only, e.g., 1.surprise.
+             """},
+            {"type": "image_url",
+            "image_url": {
+                "url": f"data:image/jpeg;base64,{base64_image}"
+            }},
+        ]
+        self.payload['messages'][0]['content'] = content
+        async with aiohttp.ClientSession() as session:
+            response = await session.post(url="https://api.openai.com/v1/chat/completions",
+                                        headers=self.headers,
+                                        json=self.payload)
+            res = await response.json()
+            # print(f'response:: {res} \n*****')
+            msg = res['choices'][0]['message']['content']
+            print(msg)
+            emo_label = int(msg.split('.')[0])
+            emo_anim_lst = EMOTION_TO_ANIM.get(emo_label, [])
+            print(f'emo list: {emo_anim_lst} \n****')
+            if not emo_anim_lst:
+                return ''
+            return random.choice(emo_anim_lst)
+    
+    async def on_multimodal_emotion_recog_task(self, frame:bytes, context):
         img = Image.open(BytesIO(frame))
         # img.save('debug.png')   # TODO 
         b = io.BytesIO()
@@ -65,7 +102,8 @@ class EmotionRecognizer:
         # base64_image = encode_image('/home/penny/pycharmprojects/amecavle/assets/debug_multi_1.png') # surprise
         content = [
             {"type": "text", 
-            "text": """You are talking with the person in front of you and guess the person's emotion base on the observation in the form of image, candidate_emotions are: -1.not provided,
+            "text": f"""You are talking with the person in front of you and guess the person's emotion base on the conversation context: {context}
+            and observation in the form of image, candidate_emotions are: -1.not provided,
              -1.other, 0.neutral, 1.surprise, 2.fear, 3.sadness, 4.joy, 5.disgust, 6.anger.
              you should provide the emotion only, e.g., 1.surprise.
              """},
@@ -105,5 +143,13 @@ emo_recognizer = EmotionRecognizer()
 
 if __name__ == "__main__":
     emo_recog = EmotionRecognizer()
-    asyncio.run(emo_recog.on_emotion_recog_task('b'))
+    content = 'i am happy today'
+    prompt = f"""You are talking with the person in front of you and guess the person's emotion base on the conversation context: {context}
+            and observation in the form of image, candidate_emotions are: -1.not provided,
+             -1.other, 0.neutral, 1.surprise, 2.fear, 3.sadness, 4.joy, 5.disgust, 6.anger.
+             you should provide the emotion only, e.g., 1.surprise.
+             """
+    print(f'prompt: {prompt} \n****')
+    # asyncio.run(emo_recog.on_multimodal_emotion_recog_task(b'', 'I am happy today!'))
+    # asyncio.run(emo_recog.on_emotion_recog_task('b'))
     pass

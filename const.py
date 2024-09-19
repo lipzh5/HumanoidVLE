@@ -51,7 +51,8 @@ EMOTION_TO_ANIM = {
 	Emotions.Joy: [
 		'Chat Expressions.dir/Chat_G2_Happy_1.project',
 		'Chat Expressions.dir/Chat_G2_Happy_2.project',
-		'Chat Expressions.dir/Chat_G2_Happy_with_audio.project',],
+		# 'Chat Expressions.dir/Chat_G2_Happy_with_audio.project',
+		],
 	
 	Emotions.Disgust: [
 		'Chat Expressions.dir/Chat_G2_Dislike_1.project',

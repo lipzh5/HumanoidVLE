@@ -137,7 +137,7 @@ def get_text_inputs_from_raw():
 	query_ids = tokenizer(query)['input_ids'][1:-1]
 
 	utterance_ids = []
-	for idx, utt in enumerate(diag_buffer.dialogue):
+	for idx, utt in enumerate(diag_buffer.dialogue):  # TODO optimize we only need the latest one 
 		token_ids = tokenizer(utt.decode(encoding))['input_ids'][1:]
 		utterance_ids.append(token_ids)
 		full_context = [CLS]
@@ -180,9 +180,9 @@ def get_vision_inputs_from_raw(n_frames):
 	for i in range(n_frames, 0, -1):
 		img_arr = np.asarray(Image.open(io.BytesIO(frame_buffer.buffer_content[-i])))
 		'''ablation 1: talking speaker face extraction (together with sound tracking)'''
-		face_tensors = face_detector(img_arr)   # (n, 3, 160, 160)
-		print(f'face tensors: {face_tensors.shape} \n*****')
-		# face_tensors = get_center_faces(img_arr) 
+		# face_tensors = face_detector(img_arr)   # (n, 3, 160, 160)
+		# print(f'face tensors: {face_tensors.shape} \n*****')
+		face_tensors = get_center_faces(img_arr) 
 		if face_tensors is not None:
 			n_faces = face_tensors.shape[0]
 			for i in range(n_faces):

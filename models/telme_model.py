@@ -8,6 +8,7 @@ import math
 import pandas as pd
 import os.path as osp
 from utils import *
+from models.emotion_rec import emo_recognizer
 
 
 from transformers import RobertaTokenizer, RobertaModel, TimesformerModel, Data2VecAudioModel
@@ -179,18 +180,23 @@ def get_models():
 
 model_t, model_s, fusion_module = get_models()
 	
-def telme_inference(input_tokens, attention_masks, video_inputs):
+async def telme_inference(input_tokens, attention_masks, video_inputs):
 	text_hidden, test_logits = model_t(input_tokens, attention_masks)
 	video_hidden, video_logits = model_s(video_inputs)  #  torch.Size([4, 8, 3, 224, 224])
 	logits = fusion_module(text_hidden, video_hidden)
 	# print(f'get emotion response logits: {logits} \n =================')
 	emotion_label = torch.argmax(logits, dim=-1).item()
+	
+	if emotion_label == Emotions.Neutral:
+		anim = await emo_recognizer.on_emotion_recog_task(frame_buffer.buffer_content[-1])
+		print(f'anim from gpt: {anim} \n*****')
+		return anim
 	anim = random.choice(EMOTION_TO_ANIM.get(emotion_label, []))
 	return anim
 
 
 
-def get_emotion_response(ts_end, duration):
+async def get_emotion_response(ts_end, duration):
 	input_tokens, attention_masks = get_text_inputs_from_raw_telme()
 	# print(f'type of text input ids: {type(text_input_ids)}, {len(text_input_ids)}, {text_input_ids.shape} \n *****')
 	# text_input_ids = torch.tensor(diag_buffer.get_text_inputs_ids())
@@ -199,7 +205,8 @@ def get_emotion_response(ts_end, duration):
 	# img_inputs, img_mask = get_img_inputs_from_raw()
 	# reps, logits = model(text_input_ids.unsqueeze(0).cuda(), img_inputs.unsqueeze(0).cuda(), img_mask.unsqueeze(0).cuda())
 
-	return telme_inference(input_tokens.cuda(), attention_masks.cuda(), video_inputs.cuda())
+	anim = await telme_inference(input_tokens.cuda(), attention_masks.cuda(), video_inputs.cuda())
+	return anim
 
 
 if __name__ == "__main__":
