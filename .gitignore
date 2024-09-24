@@ -1,3 +1,5 @@
 *.pyc
 /outputs/
 /assets/
+openai_key.txt
+*.png

@@ -125,10 +125,17 @@ def test_emo_rec():
 	# asyncio.run(emo_recognizer.on_emotion_recog_task(b''))
 	pass
 
+# def dummy_args(*args):
+# 	print(args)
+# 	time, duration = args
+# 	print(f'time: {time}, duration: {duration} \n****')
+	
+
 
 
 
 if __name__ == "__main__":
+	asyncio.run(run_sub_router())
 	# context = 'i am happy today'
 	# prompt = f"""You are talking with the person in front of you and guess the person's emotion base on the conversation context: {context}
 	# 		and observation in the form of image, candidate_emotions are: -1.not provided,
@@ -141,5 +148,3 @@ if __name__ == "__main__":
 	# test_vision_input()
 	# test_emotion_response()
 	# test_mtcnn()
-	asyncio.run(run_sub_router())
-   
