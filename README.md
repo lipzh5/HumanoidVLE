@@ -1,9 +1,9 @@
 # Vision-Language to Emotion (VL2E) Model Embodied on Ameca
 
 ## Introduction
-This repo, named **AmecaVLE**, contains the official PyTorch implementation of the system part of our paper 
+This repo, named **AmecaVLE**, contains the official PyTorch implementation of the system part of our paper **UGotMe: An Embodied System for Affective Human-Robot Interaction**.
 
-code for model training and evaluation on the MELD dataset is available here: https://github.com/lipzh5/VisionLanguageEmotion
+Code for model training and evaluation on the MELD dataset is available here: https://github.com/lipzh5/VisionLanguageEmotion
 
 
 ## Getting Started
