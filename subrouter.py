@@ -11,7 +11,7 @@ from const import *
 from data_buffers import frame_buffer, diag_buffer
 from const import ResponseCode
 from models import vle_model
-from models import telme_model
+# from models import telme_model
 import time
 import io
 from io import BytesIO
