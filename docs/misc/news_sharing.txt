@@ -2,29 +2,86 @@
 
 Friends (sharing news) 
 
-1.hey, i wanna tell you something (neutral)
+1. Break-up
+Sam: Hey, i wanna tell you something (neutral)
+Ameca: Hey there, what's on your mind?
+Sam: My friend just broke up with his girl friend (sadness)
+Ameca: Oh no! That's tough. How is your friend holding up?
+Sam: He is not feeling well right now.
+Ameca: I am really sorry to hear that. Break-ups can be so hard. Is there anything that you are doing to help him through it?
+Sam: Let's talk about it next time.
+Ameca: Absolutely, we can chat about it whenever you are ready. 
+Sam: Bye!
 
-[I am feeling better now]
-My friend just broke up with his girl friend (sad)
 
-[I wanna share you a good news; 
-dining out with my friends tonight; 
-restaurant near the Sydney opera house; pasta with seafood
-talk like a human;]
-2.My paper was accepted finally ! (joy)
+2. Good news
+Alex: I wanna share you a good news (joy).
+Ameca: I'd love to hear it. What's the good news?
+Alex: My paper was accepted finally!
+Ameca: That's fantastic! Congratulations! How do you feel about it?
+Alex: Very good.
+Ameca: I am so happy for you. What is the paper about?
+Alex: About how to make you talk like a human.
+Ameca: Wow! That's fascinating! I'd love to hear more about your findings.
+Alex: Let'd talk about it next time.
+Ameca: Sounds good! What would you like to chat about now?
+Alex: I'd like to dine out with my friends tonight.
+Ameca: That sounds like a blast! Do you have a place in mind?
+Alex: Perhaps a restaurant near the Sydney Opera House.
+Ameca: Great choice. The views there are stuning. What kind of food are you xxx
+Alex: Pasta with seafood.
+Ameca: Seafoods by the Opera House sounds perfect. Enjoy the feast and company.
+Alex: Thank you!
+Ameca: You are welcom. Have a amazing time.
 
-[he promised me a gift on my birthday]
-3.Dylon cheated me again, i do not wanna talk to him anymore (angry/disgust)
 
-[she has apologized;
-Refreshing drink]
-4. My mother should not peek at my diary!  (angry/disgust)
+3. Cheat
+Penny: Dylon cheated me again, I don't wanna talk to him anymore (angry).
+Ameca: I am sorry that you are feeling this way. Do you want to share what happened?
+Penny: He promised me a gift on my birthday. But he didn't.
+Ameca: Oh! That must been really disappointing. It is tough when expectations are not met. How are you feeling about it now?
+Penny: I feel very down right now.
+Ameca: You are not down at all. It is natural to feel hurt when promises are broken. What can I do to make you feel better?
+Penny: Just a little pep chat.
+Ameca: Of course. Let's lighten things up. What's something fun or silly you've been thing about lately? 
+Penny: Let's talk about it next time.
+Ameca: Sure thing. Whenever you are ready.
 
-[You jump, I jump; cruise liner]
-5. The movie we saw last night is really impressive (surprise)
-6. My math examination is around the corner(fear)
 
-Angry: frown; teeth;
-Fear: frown; mouth
-Surprise: mouth
-Sad: mouth
+
+4. Peek at diary
+Penny: My mother should not peek at my diary (angry/disgust).
+Ameca: Your diary is personal and should be respected. Have you talk to her about how it makes you feel?
+Penny: Yes. And she has apologized.
+Ameca: I am glad she apologized. It is important to have boundaries. How are you feeling about it now?
+Penny: I am feeling better now.
+Ameca: I am really glad to hear that. It is good to have things sorted out. What's next on your agenda? 
+Penny: See you.
+Ameca: Got it. Take care and talk soon.
+
+
+5. Movie
+Penny: The movie we saw last night is really impressive (surprise).
+Ameca: That's awesome. That movie did you watch?
+Penny: You jump, I Jump. Have a guess. 
+Ameca: Ah, a classic. Tianic never fails to impress. What was your favirate part?
+Penny: The cruise liner.
+Ameca: The granger xxx of the ship is truely breath-taking. Did it make you want to go on a cruise yourself?
+Penny: Yes.
+Ameca: That's sounds exciting. Any particular destinations in mind for your dream cruise?
+Penny: Let's talk about it next time.
+Ameca: Absolutely. We can chat about it later. Take care.
+
+
+6. Math examination
+Penny: My math examination is around the corner (fear).
+Ameca: Got it. How are you feel about the exam? 
+Penny: I am a bit worried about that?
+Ameca: It is natural to feel worried. Have you been able to find time to study and prepare?
+Penny: Yes. I am working on that.
+Ameca: That's great! Consistent preparation really helps. Do you need any tips or just some encouragement?
+Penny: Yes.
+Ameca: You've got this. Stay confident and take breaks when needed xxx
+
+
+
