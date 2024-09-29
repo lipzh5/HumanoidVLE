@@ -12,7 +12,7 @@ Code for model training and evaluation on the MELD dataset is available here: ht
 ```
 git clone git@github.com:lipzh5/AmecaVLE.git
 cd AmecaVLE
-# create enc using conda for CUDA 12.1
+# create env using conda for CUDA 12.1
 conda create -n amecabackend python=3.9.19 
 conda activate amecabackend
 pip install -r requirements.txt
