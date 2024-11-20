@@ -1,7 +1,7 @@
 # Vision-Language to Emotion (VL2E) Model Embodied on the Humanoid Robot
 
 ## Introduction
-This repo, named **HROVLE**, contains the official PyTorch implementation of the system part of our paper **UGotMe: An Embodied System for Affective Human-Robot Interaction**.
+This repo, named **HumanoidVLE**, contains the official PyTorch implementation of the system part of our paper **UGotMe: An Embodied System for Affective Human-Robot Interaction**.
 
 Code for model training and evaluation on the MELD dataset is available here: https://github.com/lipzh5/VisionLanguageEmotion
 
@@ -10,11 +10,11 @@ Code for model training and evaluation on the MELD dataset is available here: ht
 
 ### 1. Clone the code the prepare the environment 
 ```
-git clone git@github.com:lipzh5/HROVLE.git
+git clone git@github.com:lipzh5/HumanoidVLE.git
 cd HROVLE
 # create env using conda for CUDA 12.1
-conda create -n hrobackend python=3.9.19 
-conda activate hrobackend
+conda create -n humanoidbackend python=3.9.19 
+conda activate humanoidbackend
 pip install -r requirements.txt
 
 ```
