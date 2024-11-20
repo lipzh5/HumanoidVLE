@@ -27,6 +27,6 @@ python main.py
 
 ## Disclaimer
 
-This repository is created for research purposes and is not an official product of Engineered Arts. If you have any questions or encounter issues, please feel free to submit a GitHub issue.
+This repository is created for research purposes and is not officially associated with Ameca or Engineered Arts. If you have any questions or encounter issues, please feel free to submit a GitHub issue.
 
 
