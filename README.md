@@ -11,7 +11,7 @@ Code for model training and evaluation on the MELD dataset is available here: ht
 ### 1. Clone the code the prepare the environment 
 ```
 git clone git@github.com:lipzh5/HumanoidVLE.git
-cd HROVLE
+cd HumanoidVLE
 # create env using conda for CUDA 12.1
 conda create -n humanoidbackend python=3.9.19 
 conda activate humanoidbackend
