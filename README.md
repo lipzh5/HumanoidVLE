@@ -1,7 +1,7 @@
 # Vision-Language to Emotion (VL2E) Model Embodied on the Humanoid Robot
 
 ## Introduction
-This repo, named **HumanoidVLE**, contains the official PyTorch implementation of the system part of our paper **UGotMe: An Embodied System for Affective Human-Robot Interaction**.
+This repo, named **HumanoidVLE**, contains the official PyTorch implementation of the system part of our paper [**UGotMe: An Embodied System for Affective Human-Robot Interaction**](https://arxiv.org/pdf/2410.18373).
 
 Code for model training and evaluation on the MELD dataset is available here: https://github.com/lipzh5/VisionLanguageEmotion
 
